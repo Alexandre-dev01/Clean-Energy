@@ -1,1 +1,2 @@
-Catavento eólico 80m,75000,a
+placa solar|32,99|aa
+placa solar |32.99|aa

@@ -69,10 +69,11 @@ def marketplace(usuario):
 
         if op == "1":
             nome = input("Nome do produto: ")
-            preco = input("Preço: ")
+            preco = input("Preço: ").replace(",", ".")
             with open(ARQ_PRODUTOS, "a") as f:
-                f.write(f"{nome},{preco},{usuario}\n")
+                f.write(f"{nome}|{preco}|{usuario}\n")
             print("Produto adicionado.")
+
         elif op == "2":
             if not os.path.exists(ARQ_PRODUTOS):
                 print("Nenhum produto disponível.")
@@ -80,8 +81,12 @@ def marketplace(usuario):
             with open(ARQ_PRODUTOS, "r") as f:
                 print("\n--- Produtos disponíveis ---")
                 for linha in f:
-                    nome, preco, vend = linha.strip().split(",")
-                    print(f"{nome} - R${preco} (Vendedor: {vend})")
+                    try:
+                        nome, preco, vend = linha.strip().split("|")
+                        print(f"{nome} - R${preco} (Vendedor: {vend})")
+                    except ValueError:
+                        print("Produto com dados inválidos:", linha.strip())
+
         elif op == "3":
             produto = input("Digite o nome do produto que deseja comprar: ")
             comprado = False
@@ -90,11 +95,15 @@ def marketplace(usuario):
                     linhas = f.readlines()
                 with open(ARQ_PRODUTOS, "w") as f:
                     for linha in linhas:
-                        if linha.startswith(produto + ",") and not comprado:
-                            print(f"Produto {produto} comprado!")
-                            comprado = True
-                        else:
-                            f.write(linha)
+                        try:
+                            nome, preco, vend = linha.strip().split("|")
+                            if nome == produto and not comprado:
+                                print(f"Produto '{produto}' comprado por R${preco} de {vend}.")
+                                comprado = True
+                            else:
+                                f.write(linha)
+                        except ValueError:
+                            f.write(linha)  # Mantém a linha mesmo se inválida
                 if not comprado:
                     print("Produto não encontrado.")
         elif op == "4":
@@ -102,10 +111,34 @@ def marketplace(usuario):
         else:
             print("Opção inválida.")
 
+
 # ==== Módulo 3: Fórum ====
 def forum(usuario):
-    print("\n=== Fórum (em desenvolvimento) ===")
-    # Placeholder para futuras funcionalidades
+    while True:
+        print("\n=== Fórum de Energia Limpa ===")
+        print("1. Ver posts")
+        print("2. Criar post")
+        print("3. Voltar")
+        op = input("Escolha: ")
+
+        if op == "1":
+            if not os.path.exists(ARQ_FORUM):
+                print("Nenhum post ainda.")
+            else:
+                print("\n--- Posts ---")
+                with open(ARQ_FORUM, "r") as f:
+                    for linha in f:
+                        user, post = linha.strip().split(":", 1)
+                        print(f"{user}: {post}")
+        elif op == "2":
+            texto = input("Escreva seu post: ")
+            with open(ARQ_FORUM, "a") as f:
+                f.write(f"{usuario}:{texto}\n")
+            print("Post publicado.")
+        elif op == "3":
+            break
+        else:
+            print("Opção inválida.")
 
 # ==== Módulo 4: Análise de Gastos ====
 def analisar_gastos(usuario):
